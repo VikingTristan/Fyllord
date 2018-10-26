@@ -1,58 +1,157 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+  <div class="row">
+    <div class="col-6">
+      <div class="panel panel-default">
+        <header>
+          <h2 class="panel-title">
+            <span v-if="recording">Live transcript</span>
+            <span v-else>Hit record and watch results</span>
+          </h2>
+        </header>
+        <div class="panel-body">
+          <h2>
+            <span class="full-transcript">{{fullTranscript}}</span>
+            <span class="interim-transcript">{{interimTranscript}}</span>
+          </h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 justify-content-center">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <button class="btn btn-lg btn-primary" type="button" v-show="!recording" v-on:click="startRecording">Start
+            recording</button>
+          <button class="btn btn-lg btn-outline-danger" type="button" v-show="recording" v-on:click="stopRecording">
+            Stop
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="col-12" v-if="historicTranscripts && historicTranscripts.length">
+      <div class="panel panel-brand panel-dark">
+        <header>
+          <h2 class="panel-title">Transcript history</h2>
+        </header>
+        <div class="panel-body" v-for="(transcript, index) in historicTranscripts" v-bind:key="index" style="border: 1px solid #f7f7f7;">
+          <blockquote>{{transcript.text}}</blockquote>
+          <ul class="settings-list">
+            <li v-for="(word, index) in transcript.fillerWords" v-bind:key="index">
+              <i class="material-icons color-warning" v-if="word.count <= 1 && word.count >= 5">remove</i>
+              <i class="material-icons color-success" v-if="word.count == 0">check</i>
+              <i class="material-icons color-danger" v-if="word.count > 6">clear</i>
+                {{word.count}} "{{word.word}}"
+            </li>
+            <!-- <li>
+              <i class="material-icons color-success">check</i> "Ehh"/"Uhmm" : 2 times
+            </li>
+            <li>
+              <i class="material-icons color-warning">remove</i> "Liksom" : 6 times
+            </li>
+            <li>
+              <i class="material-icons color-danger">clear</i> "På en måte" : 10 times
+            </li> -->
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
+  import fillerWords from "../fillerWords.js";
+
+  export default {
+    name: 'HelloWorld',
+    data() {
+      return {
+        recording: false,
+        recordingEnded: false,
+        fullTranscript: "",
+        interimTranscript: "",
+        historicTranscripts: [],
+        fillerWords: [...fillerWords.words]
+      }
+    },
+    mounted() {
+      this.initiate();
+    },
+    methods: {
+      startRecording() {
+        this.fullTranscript = "";
+        this.recording = true;
+        this.recognition.start();
+        console.log("Clicked start!");
+      },
+      stopRecording() {
+        this.recording = false;
+        this.recordingEnded = true;
+        this.recognition.stop();
+        console.log("Stop recording");
+      },
+      initiate() {
+        this.recognition = new webkitSpeechRecognition();
+        this.recognition.continuous = true;
+        this.recognition.interimResults = true;
+        this.recognition.lang = "no";
+
+        console.log("", this.recognition);
+
+        this.recognition.onstart = () => {
+          console.log("Onstart");
+        };
+
+        this.recognition.onresult = event => {
+
+          this.interimTranscript = "";
+
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+              this.fullTranscript += event.results[i][0].transcript;
+            } else {
+              this.interimTranscript += event.results[i][0].transcript;
+            }
+          }
+
+          for (let i = 0; i < this.fillerWords.length; i++) {
+            if (this.fillerWords[i].word.search(this.interimTranscript) > 0) {
+              this.fillerWords[i].count++;
+              console.log("WE FOUND A FILLERWORD?", this.fillerWords[i])
+            }
+          }
+
+          console.log("Can we check here for filler?", this.interimTranscript);
+
+        };
+
+        this.recognition.onerror = event => {
+          console.log("onerror", event);
+        };
+
+        this.recognition.onend = () => {
+          if (!this.fullTranscript.length)
+            return;
+
+          let transcript = {};
+          transcript.text = this.fullTranscript;
+          transcript.fillerWords = [...this.fillerWords];
+
+          for (let i = 0; i < this.fillerWords.length; i++) {
+            this.fillerWords[i].count = 0;
+          }
+
+          this.historicTranscripts.push(transcript);
+        };
+      }
+    }
   }
-}
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+<style>
+  .full-transcript {
+    font-weight: bold;
+  }
+
+  .interim-transcript {
+    color: #797979;
+  }
 </style>
