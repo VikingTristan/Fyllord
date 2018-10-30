@@ -36,20 +36,11 @@
           <blockquote>{{transcript.text}}</blockquote>
           <ul class="settings-list">
             <li v-for="(word, index) in transcript.fillerWords" v-bind:key="index">
-              <i class="material-icons color-warning" v-if="word.count <= 1 && word.count >= 5">remove</i>
+              <i class="material-icons color-warning" v-if="word.count >= 1 && word.count <= 5">remove</i>
               <i class="material-icons color-success" v-if="word.count == 0">check</i>
-              <i class="material-icons color-danger" v-if="word.count > 6">clear</i>
+              <i class="material-icons color-danger" v-if="word.count >= 6">clear</i>
                 {{word.count}} "{{word.word}}"
             </li>
-            <!-- <li>
-              <i class="material-icons color-success">check</i> "Ehh"/"Uhmm" : 2 times
-            </li>
-            <li>
-              <i class="material-icons color-warning">remove</i> "Liksom" : 6 times
-            </li>
-            <li>
-              <i class="material-icons color-danger">clear</i> "På en måte" : 10 times
-            </li> -->
           </ul>
         </div>
       </div>
@@ -113,7 +104,7 @@
           }
 
           for (let i = 0; i < this.fillerWords.length; i++) {
-            if (this.fillerWords[i].word.search(this.interimTranscript) > 0) {
+            if (this.fillerWords[i].word.includes(this.interimTranscript) > 0) {
               this.fillerWords[i].count++;
               console.log("WE FOUND A FILLERWORD?", this.fillerWords[i])
             }
