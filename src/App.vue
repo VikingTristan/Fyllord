@@ -3,17 +3,17 @@
     <div class="row" v-if="!hasSpeechApi">
       <h1>Your browser doesn't support the webkitSpeechRecognition API.</h1>
     </div>
-    <HelloWorld v-else />
+    <Recorder v-else />
   </div>
 </template>
 
 <script>
-  import HelloWorld from './components/HelloWorld.vue'
+  import Recorder from './components/Recorder.vue'
 
   export default {
     name: 'app',
     components: {
-      HelloWorld
+      Recorder
     },
     data() {
       return {
