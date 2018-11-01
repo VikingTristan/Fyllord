@@ -27,48 +27,54 @@ const fillerWords = [
     word: "bare",
     count: 0
   },
-  // {
-  //   word: "på en måte",
-  //   count: 0
-  // },
-  // {
-  //   word: "holdt jeg på å si",
-  //   count: 0
-  // },
-  // {
-  //   word: "hadde jeg nær sagt",
-  //   count: 0
-  // },
-  // {
-  //   word: "når det er sagt",
-  //   count: 0
-  // },
-  // {
-  //   word: "egentlig",
-  //   count: 0
-  // },
-  // {
-  //   word: "for å si det sånn",
-  //   count: 0
-  // },
-  // {
-  //   word: "for å si det på den måten",
-  //   count: 0
-  // },      
-  // {
-  //   word: "hvis du kjønner hva jeg mener",
-  //   count: 0
-  // },
-  // {
-  //   word: "ikke sant",
-  //   count: 0
-  // }
+  {
+    word: "på en måte",
+    count: 0
+  },
+  {
+    word: "holdt jeg på å si",
+    count: 0
+  },
+  {
+    word: "hadde jeg nær sagt",
+    count: 0
+  },
+  {
+    word: "når det er sagt",
+    count: 0
+  },
+  {
+    word: "egentlig",
+    count: 0
+  },
+  {
+    word: "for å si det sånn",
+    count: 0
+  },
+  {
+    word: "for å si det på den måten",
+    count: 0
+  },      
+  {
+    word: "hvis du skjønner hva jeg mener",
+    count: 0
+  },
+  {
+    word: "ikke sant",
+    count: 0
+  }
 ];
 
 class Transcript {
   constructor(text) {
     this.text = text || "";
     this.fillerWords = [...fillerWords];
+  }
+
+  reset(){
+    this.fillerWords.forEach(word =>{
+      word.count = 0;
+    })
   }
 }
 

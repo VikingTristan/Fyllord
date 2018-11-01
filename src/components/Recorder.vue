@@ -108,13 +108,45 @@
           if (!this.fullTranscript.text.length)
             return;
 
-          let transcriptWords = this.fullTranscript.text.split(" ");
+          const transcriptWords = this.fullTranscript.text.split(" ");
 
-          transcriptWords.forEach(transcriptWord => {
-            this.fullTranscript.fillerWords.forEach(fillerWord => {
+          transcriptWords.forEach((transcriptWord, transcriptWordIndex) => {
+            this.fullTranscript.fillerWords.forEach((fillerWord, fillerWordIndex) => {
               if (transcriptWord == fillerWord.word) {
                 fillerWord.count++;
-              }                
+              } else {
+                const fillerWordSplits = fillerWord.word.split(" ");
+                if (fillerWordSplits.length > 1) {
+
+                  let currentIndexFound;
+
+                  //Check if the first word of our multi word fillerword is the same first, otherwise there's no need to continue
+                  if (transcriptWord == fillerWordSplits[0]) {
+                    console.log("Word matched the beginning of a multi word fillerword: " + transcriptWord);
+
+                    let itMatches = true;
+                    let tempIndex = transcriptWordIndex;
+                    tempIndex++;
+                    fillerWordSplits.shift();
+
+                    fillerWordSplits.forEach(fillerWordSplit => {
+                      console.log(`Comparing ${transcriptWords[tempIndex]} with ${fillerWordSplit}`);
+                      if (transcriptWords[tempIndex] == fillerWordSplit) {
+                        currentIndexFound = fillerWordIndex;
+                        tempIndex++;
+                      } else {
+                        itMatches = false;
+                      }
+                    });
+
+                    if (itMatches) {
+                      console.log("Found a complete match for the following multi word fillerword: " + this.fullTranscript.fillerWords[currentIndexFound].word )
+                      this.fullTranscript.fillerWords[currentIndexFound].count++;
+                    }
+                      
+                  }
+                }
+              }
             });
           });
 
