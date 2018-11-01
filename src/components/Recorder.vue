@@ -10,7 +10,7 @@
         </header>
         <div class="panel-body">
           <h2>
-            <span class="full-transcript">{{fullTranscript}}</span>
+            <span class="full-transcript">{{fullTranscript.text}}</span>
             <span class="interim-transcript">{{interimTranscript}}</span>
           </h2>
         </div>
@@ -39,7 +39,7 @@
               <i class="material-icons color-warning" v-if="word.count >= 1 && word.count <= 5">remove</i>
               <i class="material-icons color-success" v-if="word.count == 0">check</i>
               <i class="material-icons color-danger" v-if="word.count >= 6">clear</i>
-                {{word.count}} "{{word.word}}"
+              {{word.count}} "{{word.word}}"
             </li>
           </ul>
         </div>
@@ -49,7 +49,7 @@
 </template>
 
 <script>
-  import fillerWords from "../fillerWords.js";
+  import Transcript from "../transcript.js";
 
   export default {
     name: 'HelloWorld',
@@ -57,10 +57,9 @@
       return {
         recording: false,
         recordingEnded: false,
-        fullTranscript: "",
+        fullTranscript: new Transcript,
         interimTranscript: "",
         historicTranscripts: [],
-        fillerWords: [...fillerWords.words]
       }
     },
     mounted() {
@@ -68,24 +67,20 @@
     },
     methods: {
       startRecording() {
-        this.fullTranscript = "";
+        this.fullTranscript = new Transcript;
         this.recording = true;
         this.recognition.start();
-        console.log("Clicked start!");
       },
       stopRecording() {
         this.recording = false;
         this.recordingEnded = true;
         this.recognition.stop();
-        console.log("Stop recording");
       },
       initiate() {
         this.recognition = new webkitSpeechRecognition();
         this.recognition.continuous = true;
         this.recognition.interimResults = true;
         this.recognition.lang = "no";
-
-        console.log("", this.recognition);
 
         this.recognition.onstart = () => {
           console.log("Onstart");
@@ -97,20 +92,11 @@
 
           for (let i = event.resultIndex; i < event.results.length; ++i) {
             if (event.results[i].isFinal) {
-              this.fullTranscript += event.results[i][0].transcript;
+              this.fullTranscript.text += event.results[i][0].transcript;
             } else {
               this.interimTranscript += event.results[i][0].transcript;
             }
           }
-
-          for (let i = 0; i < this.fillerWords.length; i++) {
-            if (this.fillerWords[i].word.includes(this.interimTranscript) > 0) {
-              this.fillerWords[i].count++;
-              console.log("WE FOUND A FILLERWORD?", this.fillerWords[i])
-            }
-          }
-
-          console.log("Can we check here for filler?", this.interimTranscript);
 
         };
 
@@ -119,18 +105,21 @@
         };
 
         this.recognition.onend = () => {
-          if (!this.fullTranscript.length)
+          if (!this.fullTranscript.text.length)
             return;
 
-          let transcript = {};
-          transcript.text = this.fullTranscript;
-          transcript.fillerWords = [...this.fillerWords];
+          let transcriptWords = this.fullTranscript.text.split(" ");
 
-          for (let i = 0; i < this.fillerWords.length; i++) {
-            this.fillerWords[i].count = 0;
-          }
+          transcriptWords.forEach(transcriptWord => {
+            this.fullTranscript.fillerWords.forEach(fillerWord => {
+              if (transcriptWord == fillerWord.word) {
+                fillerWord.count++;
+              }                
+            });
+          });
 
-          this.historicTranscripts.push(transcript);
+          this.historicTranscripts.push(this.fullTranscript);
+          this.fullTranscript = new Transcript;
         };
       }
     }
