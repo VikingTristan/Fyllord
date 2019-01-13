@@ -1,6 +1,8 @@
 <template>
   <div id="app">
-    <div class="row" v-if="!hasSpeechApi">
+    <div 
+      v-if="!hasSpeechApi" 
+      class="row">
       <h1>Your browser doesn't support the webkitSpeechRecognition API.</h1>
     </div>
     <Recorder v-else />
@@ -8,22 +10,22 @@
 </template>
 
 <script>
-  import Recorder from './components/Recorder.vue'
+import Recorder from "./components/Recorder.vue";
 
-  export default {
-    name: 'app',
-    components: {
-      Recorder
-    },
-    data() {
-      return {
-        hasSpeechApi: false
-      }
-    },
-    mounted() {
-      this.hasSpeechApi = ("webkitSpeechRecognition" in window);
-    }
-  }
+export default {
+	name: "App",
+	components: {
+		Recorder
+	},
+	data() {
+		return {
+			hasSpeechApi: false
+		};
+	},
+	mounted() {
+		this.hasSpeechApi = ("webkitSpeechRecognition" in window);
+	}
+};
 </script>
 
 <style>
