@@ -67,13 +67,18 @@ class Transcript {
         count: 0
       }
     ];
+    this.showAllWords = false;
+    this.reset = () => {
+      this.fillerWords.forEach(word =>{
+        word.count = 0;
+      })
+    }
+    this.toggleWords = () => {
+      this.showAllWords = !this.showAllWords;
+    }
   }
 
-  reset(){
-    this.fillerWords.forEach(word =>{
-      word.count = 0;
-    })
-  }
+  
 }
 
 export { Transcript as default }
