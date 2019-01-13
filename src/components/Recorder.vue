@@ -19,10 +19,11 @@
     <div class="col-6 justify-content-center">
       <div class="panel panel-default">
         <div class="panel-body">
-          <button class="btn btn-lg btn-primary" type="button" v-show="!recording" v-on:click="startRecording">Start
-            recording</button>
+          <button class="btn btn-lg btn-primary" type="button" v-show="!recording" v-on:click="startRecording">
+            <i class="material-icons">mic</i> <span>Start
+            recording</span></button>
           <button class="btn btn-lg btn-outline-danger" type="button" v-show="recording" v-on:click="stopRecording">
-            Stop
+            <i class="material-icons">mic_off</i> <span>Stop</span>
           </button>
         </div>
       </div>
