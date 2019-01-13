@@ -16,15 +16,13 @@
         </div>
       </div>
     </div>
-    <div class="col-6 justify-content-center">
-      <div class="panel panel-default">
-        <div class="panel-body">
-          <button class="btn btn-lg btn-primary" type="button" v-show="!recording" v-on:click="startRecording">Start
-            recording</button>
-          <button class="btn btn-lg btn-outline-danger" type="button" v-show="recording" v-on:click="stopRecording">
-            Stop
-          </button>
-        </div>
+    <div class="col-6">
+      <div class="row justify-content-center mt-5">
+        <button class="btn btn-lg btn-primary" type="button" v-show="!recording" v-on:click="startRecording">
+          <i class="material-icons">mic</i> <span>Start recording</span></button>
+        <button class="btn btn-lg btn-outline-danger" type="button" v-show="recording" v-on:click="stopRecording">
+          <i class="material-icons">mic_off</i> <span>Stop</span>
+        </button>
       </div>
     </div>
     <div class="col-12" v-if="historicTranscripts && historicTranscripts.length">
@@ -34,14 +32,23 @@
         </header>
         <div class="panel-body" v-for="(transcript, index) in historicTranscripts" v-bind:key="index" style="border: 1px solid #f7f7f7;">
           <blockquote>{{transcript.text}}</blockquote>
-          <ul class="settings-list">
+          <ul class="settings-list mt-5">
+            <h3 style="color: #fff;">Filler words summary:</h3>
             <li v-for="(word, index) in transcript.fillerWords" v-bind:key="index">
+              <i class="material-icons color-success" v-if="word.count == 0 && transcript.showAllWords">check</i>
               <i class="material-icons color-warning" v-if="word.count >= 1 && word.count <= 5">remove</i>
-              <i class="material-icons color-success" v-if="word.count == 0">check</i>
               <i class="material-icons color-danger" v-if="word.count >= 6">clear</i>
-              {{word.count}} "{{word.word}}"
+              <span v-if="transcript.showAllWords || word.count >= 1">{{word.count}} "{{word.word}}"</span>
             </li>
           </ul>
+          <div class="row justify-content-center">
+            <button class="btn btn-xs btn-outline-secondary" v-on:click="transcript.toggleWords()" v-if="!transcript.showAllWords">
+              <i class="material-icons">keyboard_arrow_down</i> <span>Show all words</span>
+            </button>
+            <button class="btn btn-xs btn-outline-secondary" v-on:click="transcript.toggleWords()" v-else>
+              <i class="material-icons">keyboard_arrow_up</i> <span>Hide</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -140,10 +147,11 @@
                     });
 
                     if (itMatches) {
-                      console.log("Found a complete match for the following multi word fillerword: " + this.fullTranscript.fillerWords[currentIndexFound].word )
+                      console.log("Found a complete match for the following multi word fillerword: " + this.fullTranscript
+                        .fillerWords[currentIndexFound].word)
                       this.fullTranscript.fillerWords[currentIndexFound].count++;
                     }
-                      
+
                   }
                 }
               }
@@ -161,6 +169,7 @@
 <style>
   .full-transcript {
     font-weight: bold;
+    color: #272727;
   }
 
   .interim-transcript {
