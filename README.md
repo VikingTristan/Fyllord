@@ -1,6 +1,8 @@
 # Fyllord
 
-A tiny test project using the webkitSpeechRecognition API to detect filler words
+A tiny test project using the webkitSpeechRecognition API to detect Norwegian filler words.
+
+Demo: https://vikingtristan.github.io/Fyllord/
 
 ## Project setup
 ```
